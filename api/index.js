@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import { v4 as uuidv4 } from "uuid";
 
 const fastify = Fastify({
   logger: false,
@@ -16,7 +17,7 @@ fastify.get("/todos", (request, reply) => {
 // Get a single todo by ID
 fastify.get("/todos/:id", (request, reply) => {
   const { id } = request.params;
-  const todo = todos.find((todo) => todo.id === parseInt(id));
+  const todo = todos.find((todo) => todo.id === id);
   if (todo) {
     reply.send(todo);
   } else {
@@ -27,7 +28,7 @@ fastify.get("/todos/:id", (request, reply) => {
 fastify.post("/todos", (request, reply) => {
   const { title } = request.body;
   const newTodo = {
-    id: todos.length + 1,
+    id: uuidv4(),
     title,
     completed: false,
   };
@@ -39,7 +40,7 @@ fastify.post("/todos", (request, reply) => {
 fastify.put("/todos/:id", (request, reply) => {
   const { id } = request.params;
   const { title, completed } = request.body;
-  const todo = todos.find((todo) => todo.id === parseInt(id));
+  const todo = todos.find((todo) => todo.id === id);
   if (todo) {
     todo.title = title !== undefined ? title : todo.title;
     todo.completed = completed !== undefined ? completed : todo.completed;
@@ -52,7 +53,7 @@ fastify.put("/todos/:id", (request, reply) => {
 // Delete a todo
 fastify.delete("/todos/:id", (request, reply) => {
   const { id } = request.params;
-  todos = todos.filter((todo) => todo.id !== parseInt(id));
+  todos = todos.filter((todo) => todo.id !== id);
   reply.status(204).send();
 });
 
