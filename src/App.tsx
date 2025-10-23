@@ -32,6 +32,14 @@ export function App() {
     }
   };
 
+  const handleToggleCompleted = async (id: string, completed: boolean) => {
+    const response = await todoService.updateTodo(id, { completed });
+    if (response.data) {
+      const updatedTodo = response.data;
+      setTodos(todos.map((todo) => (todo.id === id ? updatedTodo : todo)));
+    }
+  };
+
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-4 p-4">
       <form onSubmit={handleAddTodo}>
@@ -71,6 +79,9 @@ export function App() {
                   type="checkbox"
                   checked={todo.completed}
                   className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                  onChange={() =>
+                    handleToggleCompleted(todo.id, !todo.completed)
+                  }
                 />
               </div>
             </div>
