@@ -25,6 +25,9 @@ export function App() {
 
   const handleAddTodo = async (event: FormEvent) => {
     event.preventDefault();
+    if (!newTodoTitle.trim()) {
+      return;
+    }
     const response = await todoService.addTodo(newTodoTitle);
     if (response && response.data) {
       setTodos([...todos, response.data]);
