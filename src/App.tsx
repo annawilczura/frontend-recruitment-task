@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import * as todoService from "./services/todoService";
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 
 type Todo = {
   id: string;
@@ -11,6 +11,17 @@ type Todo = {
 export function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState("");
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      const response = await todoService.getTodos();
+      if (response && response.data) {
+        setTodos(response.data);
+      }
+    };
+
+    fetchTodos();
+  }, []);
 
   const handleAddTodo = async (event: FormEvent) => {
     event.preventDefault();
