@@ -40,6 +40,23 @@ export function App() {
     }
   };
 
+  const handleClearCompleted = async () => {
+    const completedTodoIds = todos
+      .filter((todo) => todo.completed)
+      .map((todo) => todo.id);
+    const deletePromises = completedTodoIds.map((id) =>
+      todoService.deleteTodo(id),
+    );
+
+    const responses = await Promise.all(deletePromises);
+
+    const hasErrors = responses.some((response) => response.error);
+
+    if (!hasErrors) {
+      setTodos(todos.filter((todo) => !todo.completed));
+    }
+  };
+
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-4 p-4">
       <form onSubmit={handleAddTodo}>
@@ -96,9 +113,14 @@ export function App() {
         >
           {todos.length} items left
         </span>
-        <button className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-          Clear completed
-        </button>
+        {todos.some((todo) => todo.completed) && (
+          <button
+            onClick={handleClearCompleted}
+            className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+          >
+            Clear completed
+          </button>
+        )}
       </div>
     </div>
   );
