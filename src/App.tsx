@@ -117,7 +117,7 @@ export function App() {
                 data-testid="todo-item"
                 className={clsx(
                   "relative flex items-start py-4",
-                  // todo.completed && "line-through",
+                  todo.completed && "line-through",
                 )}
               >
                 <div className="min-w-0 flex-1 text-sm leading-6">
