@@ -12,15 +12,19 @@ export function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTodos = async () => {
       try {
         const response = await todoService.getTodos();
-        if (response && response.data) {
+        if (response.data) {
           setTodos(response.data);
+        } else if (response.error) {
+          setError(response.error.message);
         }
       } catch (error) {
+        setError("An unexpected error occurred while fetching todos.");
         console.error("Failed to fetch todos:", error);
       } finally {
         setIsLoading(false);
@@ -36,9 +40,12 @@ export function App() {
       return;
     }
     const response = await todoService.addTodo(newTodoTitle);
-    if (response && response.data) {
+    if (response.data) {
       setTodos([...todos, response.data]);
       setNewTodoTitle("");
+      setError(null);
+    } else if (response.error) {
+      setError(response.error.message);
     }
   };
 
@@ -47,6 +54,9 @@ export function App() {
     if (response.data) {
       const updatedTodo = response.data;
       setTodos(todos.map((todo) => (todo.id === id ? updatedTodo : todo)));
+      setError(null);
+    } else if (response.error) {
+      setError(response.error.message);
     }
   };
 
@@ -60,15 +70,27 @@ export function App() {
 
     const responses = await Promise.all(deletePromises);
 
-    const hasErrors = responses.some((response) => response.error);
+    const firstError = responses.find((response) => response.error);
 
-    if (!hasErrors) {
+    if (firstError && firstError.error) {
+      setError(firstError.error.message);
+    } else {
       setTodos(todos.filter((todo) => !todo.completed));
+      setError(null);
     }
   };
 
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-4 p-4">
+      {error && (
+        <div
+          className="relative rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
+          role="alert"
+        >
+          <strong className="font-bold">Error:</strong>
+          <span className="block sm:inline"> {error}</span>
+        </div>
+      )}
       <form onSubmit={handleAddTodo}>
         <input
           placeholder="What needs to be done?"
